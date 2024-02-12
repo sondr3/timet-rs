@@ -2,7 +2,7 @@ mod cli;
 
 use std::{collections::HashMap, path::PathBuf};
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use etcetera::{choose_base_strategy, BaseStrategy};
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
@@ -41,6 +41,11 @@ fn config_file() -> anyhow::Result<PathBuf> {
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
+    if let Some(shell) = cli.completions {
+        cli::print_completion(shell, &mut Cli::command());
+        return Ok(());
+    }
 
     if cli.init {
         let file = config_file()?;

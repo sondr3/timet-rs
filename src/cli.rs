@@ -1,5 +1,7 @@
-use clap::Parser;
-use clap_complete::Shell;
+use std::io;
+
+use clap::{Command, Parser};
+use clap_complete::{generate, Generator, Shell};
 
 #[derive(Parser, Debug)]
 #[clap(name = "timet", about, version, author)]
@@ -15,5 +17,9 @@ pub struct Cli {
     pub init: bool,
     /// Create shell completions
     #[clap(long, value_enum)]
-    pub completions: Shell,
+    pub completions: Option<Shell>,
+}
+
+pub fn print_completion<G: Generator>(gen: G, app: &mut Command) {
+    generate(gen, app, app.get_name().to_string(), &mut io::stdout());
 }
