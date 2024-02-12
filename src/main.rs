@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
 use clap::Parser;
+use etcetera::{choose_base_strategy, BaseStrategy};
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
-
-const URL: &str = "https://europe-west1-prod-timet-eu.cloudfunctions.net/entries-bymonth";
 
 #[derive(Parser, Debug)]
 #[clap(name = "timet", about, version, author)]
@@ -15,18 +14,21 @@ struct Cli {
     /// Year to get the time entries for, defaults to this year
     #[clap(short, long)]
     year: Option<i32>,
-    /// API key to get data
-    #[clap(short, long, env = "TIMET_KEY")]
-    api_key: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct Config {
+    url: String,
+    key: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Data {
     pub entries: Vec<TimeEntry>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeEntry {
     pub day_of_year: i64,
@@ -47,10 +49,16 @@ fn main() -> anyhow::Result<()> {
     let month = cli.month.map_or_else(|| today.month().into(), |m| m);
     let year = cli.year.map_or_else(|| today.year(), |y| y);
 
-    let res = attohttpc::get(URL)
+    let config: Config = {
+        let file = choose_base_strategy()?.config_dir().join("timet.json");
+        let file = std::fs::read_to_string(file)?;
+        serde_json::from_str(&file)?
+    };
+
+    let res = attohttpc::get(&config.url)
         .param("year", year)
         .param("month", month)
-        .header("X-API-Key", &cli.api_key)
+        .header("X-API-Key", &config.key)
         .send()?;
 
     let data: Data = res.json_utf8()?;
