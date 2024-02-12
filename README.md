@@ -1,6 +1,6 @@
 <h1 align="center">timet-rs</h1>
 <p align="center">
-    <a href="https://github.com/sondr3/timet/actions"><img alt="GitHub Actions Status" src="https://github.com/sondr3/timet/workflows/pipeline/badge.svg" /></a>
+    <a href="https://github.com/sondr3/timet-rs/actions"><img alt="GitHub Actions Status" src="https://github.com/sondr3/timet-rs/workflows/pipeline/badge.svg" /></a>
     <a href="https://crates.io/crates/timet-rs"><img alt="Crates" src="https://img.shields.io/crates/v/timet-rs.svg" /></a>
 </p>
 
