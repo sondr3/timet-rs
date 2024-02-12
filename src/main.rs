@@ -1,3 +1,5 @@
+mod cli;
+
 use std::{collections::HashMap, path::PathBuf};
 
 use clap::Parser;
@@ -5,19 +7,7 @@ use etcetera::{choose_base_strategy, BaseStrategy};
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-#[derive(Parser, Debug)]
-#[clap(name = "timet", about, version, author)]
-struct Cli {
-    /// Month to get the time entries for, defaults to this month
-    #[clap(short, long)]
-    month: Option<u8>,
-    /// Year to get the time entries for, defaults to this year
-    #[clap(short, long)]
-    year: Option<i32>,
-    /// Create a new config file
-    #[clap(short, long)]
-    init: bool,
-}
+use crate::cli::Cli;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct Config {
