@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use clap::Parser;
 use etcetera::{choose_base_strategy, BaseStrategy};
@@ -14,6 +14,9 @@ struct Cli {
     /// Year to get the time entries for, defaults to this year
     #[clap(short, long)]
     year: Option<i32>,
+    /// Create a new config file
+    #[clap(short, long)]
+    init: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -42,16 +45,40 @@ pub struct TimeEntry {
     pub project_id: String,
 }
 
+fn config_file() -> anyhow::Result<PathBuf> {
+    Ok(choose_base_strategy()?.config_dir().join("timet.json"))
+}
+
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
+    if cli.init {
+        let file = config_file()?;
+
+        if file.exists() {
+            println!("Config file already exists at {file:?}");
+            return Ok(());
+        }
+
+        let default_config = Config {
+            url: "https://httpstatusdogs.com".into(),
+            key: "key_goes_here".into(),
+        };
+
+        std::fs::create_dir_all(file.parent().unwrap())?;
+        std::fs::write(&file, serde_json::to_string_pretty(&default_config)?)?;
+
+        println!("Created config file at {file:?}");
+        return Ok(());
+    }
+
     let today = OffsetDateTime::now_utc();
 
     let month = cli.month.map_or_else(|| today.month().into(), |m| m);
     let year = cli.year.map_or_else(|| today.year(), |y| y);
 
     let config: Config = {
-        let file = choose_base_strategy()?.config_dir().join("timet.json");
-        let file = std::fs::read_to_string(file)?;
+        let file = std::fs::read_to_string(config_file()?)?;
         serde_json::from_str(&file)?
     };
 
