@@ -3,6 +3,10 @@ name = "timet-rs"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "timet"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0.79"
 attohttpc = { version = "0.27.0", default-features = false, features = ["json", "compress", "tls-rustls"] }
