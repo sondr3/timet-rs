@@ -1,3 +1,14 @@
+## v0.2.0
+> 2024-02-29
+
+## Summary
+
+Add support for adding a single fagdag and templating to the output.
+
+### Commits
+- [[`046d97f`](https://github.com/sondr3/timet-rs/commit/046d97f)] Add templating using minijinja
+- [[`daceaf7`](https://github.com/sondr3/timet-rs/commit/daceaf7)] Add fagdag CLI flag
+
 ## v0.1.1/v0.1.2
 > 2024-02-29
 
