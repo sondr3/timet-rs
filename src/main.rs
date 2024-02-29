@@ -115,9 +115,9 @@ fn main() -> anyhow::Result<()> {
 
     let total = hours.iter().map(|(_, h)| h).sum::<f64>();
     for (project, hours) in hours {
-        println!("{project} {hours:.1}t");
+        println!("- {project}: {hours}t");
     }
-    println!("Totalt - {total:.1}t");
+    println!("- Totalt: {total:.1}t");
 
     Ok(())
 }
