@@ -113,6 +113,9 @@ fn main() -> anyhow::Result<()> {
         }
     });
 
+    if cli.fagdag {
+        println!("- En stk fagdag");
+    }
     let total = hours.iter().map(|(_, h)| h).sum::<f64>();
     for (project, hours) in hours {
         println!("- {project}: {hours}t");

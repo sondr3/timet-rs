@@ -12,6 +12,9 @@ pub struct Cli {
     /// Year to get the time entries for, defaults to this year
     #[clap(short, long)]
     pub year: Option<i32>,
+    /// Participated in a fagdag
+    #[clap(short, long)]
+    pub fagdag: bool,
     /// Create a new config file
     #[clap(short, long)]
     pub init: bool,
