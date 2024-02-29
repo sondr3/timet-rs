@@ -1,4 +1,4 @@
-## v0.1.1
+## v0.1.1/v0.1.2
 > 2024-02-29
 
 ## Summary
@@ -6,6 +6,7 @@
 Fix output formatting.
 
 ### Commits
+- [[`551deff`](https://github.com/sondr3/timet-rs/commit/551deff)] Also build aarch64 version in CI
 - [[`eacb566`](https://github.com/sondr3/timet-rs/commit/eacb566)] Minor formatting fixes for output
 
 ## v0.1.0
