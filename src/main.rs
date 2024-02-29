@@ -1,11 +1,16 @@
 mod cli;
 
-use std::{collections::HashMap, path::PathBuf};
+use std::{
+    collections::HashMap,
+    io::stdout,
+    path::{Path, PathBuf},
+};
 
 use clap::{CommandFactory, Parser};
 use etcetera::{choose_base_strategy, BaseStrategy};
+use minijinja::{context, Environment};
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
+use time::{Date, Month, OffsetDateTime};
 
 use crate::cli::Cli;
 
@@ -13,6 +18,7 @@ use crate::cli::Cli;
 struct Config {
     url: String,
     key: String,
+    template: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -36,7 +42,66 @@ pub struct TimeEntry {
 }
 
 fn config_file() -> anyhow::Result<PathBuf> {
-    Ok(choose_base_strategy()?.config_dir().join("timet.json"))
+    Ok(config_dir()?.join("timet.json"))
+}
+
+fn config_dir() -> anyhow::Result<PathBuf> {
+    Ok(choose_base_strategy()?.config_dir())
+}
+
+fn print_hours(hours: &[(String, f64)], fagdag: bool) {
+    if fagdag {
+        println!("- En stk fagdag");
+    }
+
+    let total = hours.iter().map(|(_, h)| h).sum::<f64>();
+    for (project, hours) in hours {
+        println!("- {project}: {hours}t");
+    }
+    println!("- Totalt: {total:.1}t");
+}
+
+fn norwegian_month(month: u8) -> String {
+    match month {
+        1 => "Januar",
+        2 => "Februar",
+        3 => "Mars",
+        4 => "April",
+        5 => "Mai",
+        6 => "Juni",
+        7 => "Juli",
+        8 => "August",
+        9 => "September",
+        10 => "Oktober",
+        11 => "November",
+        12 => "Desember",
+        _ => unreachable!(),
+    }
+    .to_string()
+}
+
+fn print_template(
+    template: &Path,
+    hours: &[(String, f64)],
+    fagdag: bool,
+    date: Date,
+) -> anyhow::Result<()> {
+    let template = std::fs::read_to_string(template)?;
+    let mut env = Environment::new();
+    env.add_filter("norwegian_month", norwegian_month);
+    let template = env.template_from_str(&template)?;
+
+    let total = hours.iter().map(|(_, h)| h).sum::<f64>();
+    let ctx = context! {
+        fagdag => fagdag,
+        hours => hours,
+        total => total,
+        month => date.month() as u8
+    };
+
+    template.render_to_write(ctx, stdout())?;
+
+    Ok(())
 }
 
 fn main() -> anyhow::Result<()> {
@@ -58,6 +123,7 @@ fn main() -> anyhow::Result<()> {
         let default_config = Config {
             url: "https://httpstatusdogs.com".into(),
             key: "key_goes_here".into(),
+            template: None,
         };
 
         std::fs::create_dir_all(file.parent().unwrap())?;
@@ -71,6 +137,7 @@ fn main() -> anyhow::Result<()> {
 
     let month = cli.month.map_or_else(|| today.month().into(), |m| m);
     let year = cli.year.map_or_else(|| today.year(), |y| y);
+    let date = Date::from_calendar_date(year, Month::try_from(month)?, 1)?;
 
     let config: Config = {
         let file = std::fs::read_to_string(config_file()?)?;
@@ -78,8 +145,8 @@ fn main() -> anyhow::Result<()> {
     };
 
     let res = attohttpc::get(&config.url)
-        .param("year", year)
-        .param("month", month)
+        .param("year", date.year())
+        .param("month", date.month() as u8)
         .header("X-API-Key", &config.key)
         .send()?;
 
@@ -113,14 +180,12 @@ fn main() -> anyhow::Result<()> {
         }
     });
 
-    if cli.fagdag {
-        println!("- En stk fagdag");
+    if let Some(template) = config.template {
+        let template = config_dir()?.join(template);
+        print_template(&template, &hours, cli.fagdag, date)?;
+    } else {
+        print_hours(&hours, cli.fagdag);
     }
-    let total = hours.iter().map(|(_, h)| h).sum::<f64>();
-    for (project, hours) in hours {
-        println!("- {project}: {hours}t");
-    }
-    println!("- Totalt: {total:.1}t");
 
     Ok(())
 }

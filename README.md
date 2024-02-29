@@ -19,12 +19,23 @@ Simply run `timet` to get your hours for the current month.
 $ timet
 ```
 
-
 If you want to get the hours for a different month, you can use the `-m` and `-y` flags to specify the month and year.
 
 ```shell
 $ timet -m 1 -y 2021  # Get the hours for January 2021
 ```
+
+## Configuration
+
+Get your API key from the Timet console and configure your config file using
+`timet -i` to create it/get the path for it. Then add the URl and key into the
+`timet.json` file.
+
+Optionally, you can also create a template by creating a template file and 
+`template` key in the config file. Note that the path is relative to the
+config directory. So a `"template": "./timet.tmp"` will be read as a file
+in the same directory as `timet.json`. These files use [`minijinja`](https://docs.rs/minijinja/latest/minijinja/index.html)
+as the templating engine, see here for info about the [syntax](https://docs.rs/minijinja/latest/minijinja/syntax/index.html).
 
 ## Completion
 
@@ -45,7 +56,6 @@ Options:
   -h, --help                       Print help
   -V, --version                    Print version
 ```
-
 
 # Installation
 
