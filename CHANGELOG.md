@@ -1,3 +1,13 @@
+## v0.1.1
+> 2024-02-29
+
+## Summary
+
+Fix output formatting.
+
+### Commits
+- [[`eacb566`](https://github.com/sondr3/timet-rs/commit/eacb566)] Minor formatting fixes for output
+
 ## v0.1.0
 > 2024-02-12
 
@@ -16,5 +26,3 @@ Hello, world!
 - [[`c360765`](https://github.com/sondr3/timet-rs/commit/c360765)] Use JSON config
 - [[`49c20ed`](https://github.com/sondr3/timet-rs/commit/49c20ed)] Fetch and sort hours
 - [[`b54f68d`](https://github.com/sondr3/timet-rs/commit/b54f68d)] In the beginning there was darkness
-
-

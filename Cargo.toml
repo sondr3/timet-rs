@@ -6,7 +6,7 @@ documentation = "https://github.com/sondr3/timet-rs"
 homepage = "https://github.com/sondr3/timet-rs"
 repository = "https://github.com/sondr3/timet-rs"
 license = "WTFPL"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [[bin]]
